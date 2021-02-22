@@ -1,0 +1,122 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    compileSdkVersion 29
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('../key-debug.jks')
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storePassword 'android'
+        }
+        release {
+            def properties = getConfigProperties()
+            storeFile file('../key-release.jks')
+            keyAlias properties['releaseKeyAlias']
+            keyPassword properties['releaseKeyPassword']
+            storePassword properties['releaseKeyStorePassword']
+        }
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "io.agilevision.reinventory"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "io.reactivex.rxjava2:rxjava:2.2.20"
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+
+    implementation 'com.amplifyframework:core:1.6.8'
+    implementation 'com.amplifyframework:aws-auth-cognito:1.6.8'
+    implementation 'com.amazonaws:aws-android-sdk-iot:2.22.2'
+
+}
+
+
+def getConfigProperties() {
+    Properties properties = new Properties()
+    properties["releaseKeyAlias"] = releaseKeyAlias
+    properties["releaseKeyPassword"] = releaseKeyPassword
+    properties["releaseKeyStorePassword"] = releaseKeyStorePassword
+    if (isLocalGradlePropertiesEnabled()) {
+        def file = rootProject.file("local.properties")
+        if (file.exists()) {
+            InputStream is = new FileInputStream(file)
+            properties.load(is)
+            is.close()
+        }
+    }
+    return properties
+}
+
+def isLocalGradlePropertiesEnabled() {
+    def localProperties = getLocalProperties()
+    if (localProperties == null) return false
+    Boolean enabled = localProperties['localConfig']
+    return enabled == null ? false : enabled
+}
+
+Properties getLocalProperties() {
+    def localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        def localProperties = new Properties()
+        InputStream inputStream = new FileInputStream(localPropertiesFile)
+        localProperties.load(inputStream)
+        inputStream.close()
+        return localProperties
+    }
+    return null
+}

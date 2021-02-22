@@ -1,0 +1,78 @@
+name: shadows
+description: AWS IoT Shadows Example
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  get_it: ^5.0.1
+  logging: ^0.11.4
+  rxdart: ^0.24.1
+  cupertino_icons: ^1.0.0
+  infinite_scroll_pagination: ^2.2.4
+  path_provider: ^1.6.27
+  uuid: ^2.2.2
+  amplify_flutter: '<1.0.0'
+  amplify_auth_cognito: '<1.0.0'
+  url_launcher: ^5.7.10
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# The following section is specific to Flutter.
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/ic_back.png
+    - assets/images/ic_close.png
+    - assets/images/ic_show_password.png
+    - assets/images/ic_hide_password.png
+    - assets/images/ic_checked.png
+    - assets/images/ic_tab_assets.png
+    - assets/images/ic_tab_assets_active.png
+    - assets/images/ic_tab_settings.png
+    - assets/images/ic_tab_settings_active.png
+    - assets/images/ic_more.png
+    - assets/images/ic_edit.png
+    - assets/images/ic_email.png
+    - assets/images/ic_logout.png
+    - assets/images/image_no_assets.png
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+    - family: Raleway
+      fonts:
+        - asset: assets/fonts/Raleway-Regular.ttf
+        - asset: assets/fonts/Raleway-Bold.ttf
+          weight: 700
+    - family: RalewayBlack
+      fonts:
+        - asset: assets/fonts/Raleway-Black.ttf
+
+flutter_intl:
+  main_locale: en
+  enabled: true

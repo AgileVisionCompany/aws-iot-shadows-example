@@ -1,0 +1,25 @@
+{
+  "name": "aws-iot-shadows-example",
+  "version": "1.0.0",
+  "description": "AWS IoT Shadows Example",
+  "main": "lib/main.dart",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgileVisionCompany/reinventory-flutter-app.git"
+  },
+  "author": "AgileVision",
+  "bugs": {
+    "url": "https://github.com/AgileVisionCompany/reinventory-flutter-app/issues"
+  },
+  "homepage": "https://github.com/AgileVisionCompany/reinventory-flutter-app#readme",
+  "dependencies": {
+    "@aws-amplify/cli": "^4.26.1-flutter-preview.0"
+  }
+}
