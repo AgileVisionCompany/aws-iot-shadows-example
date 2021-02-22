@@ -2,6 +2,8 @@
 
 Flutter application (for Android) for demonstrating AWS IoT shadows.
 
+![Example Video](docs/video_example.mkv)
+
 ## Building the Project
 - Create a file named `awsconfiguration.json` in the `android/app/src/main/res/raw` directory with the following content:
 
@@ -99,5 +101,3 @@ Flutter application (for Android) for demonstrating AWS IoT shadows.
     ```
 
   - Congratulations! Now you can build the app on your local machine.
-  - For testing on non-prod environments you can go to the "Settings" -> "Generate random assets" for
-    creating a list of 100 random assets
