@@ -35,9 +35,7 @@ interface Result<T> {
     }
 }
 
-class FlutterBridge(
-        private val methodChannel: MethodChannel
-) {
+class FlutterBridge {
 
     private val methodRecords: MutableMap<String, MethodHandlerRecord<*, *>> = mutableMapOf()
 
@@ -50,8 +48,13 @@ class FlutterBridge(
 
     private val initSubject = CompletableSubject.create();
 
-    init {
+    private lateinit var methodChannel: MethodChannel
 
+    /**
+     * Called by [FlutterBridgePlugin] upon attaching to the engine.
+     */
+    fun initialize(methodChannel: MethodChannel) {
+        this.methodChannel = methodChannel
         methodChannel.setMethodCallHandler { call, result ->
             val methodName = call.method
             val arg = call.arguments as String?
@@ -65,7 +68,51 @@ class FlutterBridge(
             record.invoke(methodName, arg, result)
         }
 
-        initialize()
+        registerInvocationHandler<NativeStreamStartArgs, Empty>("stream:start", NativeStreamStartArgs::class.java) { args, result ->
+            createNativeStream(args, result)
+        }
+
+        registerInvocationHandler<NativeStreamStopArgs, Empty>("stream:stop", NativeStreamStopArgs::class.java) { args, result ->
+            stopNativeStream(args)
+            result.success(Empty())
+        }
+
+        registerInvocationHandler<FlutterStreamOnEventArgs, Empty>("flutterStream:onEvent", FlutterStreamOnEventArgs::class.java) { args, result ->
+            onFlutterStreamEvent(args.id, args.data)
+            result.success(Empty())
+        }
+
+        registerInvocationHandler<FlutterStreamOnErrorArgs, Empty>("flutterStream:onError", FlutterStreamOnErrorArgs::class.java) { args, result ->
+            onFlutterStreamError(args.id, args.code, args.message)
+            result.success(Empty())
+        }
+
+        registerInvocationHandler<FlutterStreamOnCompleteArgs, Empty>("flutterStream:onComplete", FlutterStreamOnCompleteArgs::class.java) { args, result ->
+            onFlutterStreamComplete(args.id)
+            result.success(Empty())
+        }
+
+        registerInvocationHandler<Empty, Id>("stream:createId", Empty::class.java) { args, result ->
+            result.success(Id(++flutterStreamIdSequence))
+        }
+
+        registerInvocationHandler<Empty, Empty>("onFlutterInitialized", Empty::class.java) { _, result ->
+            initSubject.onComplete()
+            result.success(Empty())
+        }
+
+    }
+
+    /**
+     * Called by [FlutterBridgePlugin] upon detaching to the engine.
+     * ToDo: dispose all subscriptions here too
+     */
+    fun dispose() {
+        methodChannel.setMethodCallHandler(null)
+        methodRecords.clear()
+        nativeStreamHandlerRecords.clear()
+        nativeStreamRecords.clear()
+        flutterStreamRecords.clear()
     }
 
     /**
@@ -170,42 +217,6 @@ class FlutterBridge(
                         }
                     })
         }
-    }
-
-    private fun initialize() {
-        registerInvocationHandler<NativeStreamStartArgs, Empty>("stream:start", NativeStreamStartArgs::class.java) { args, result ->
-            createNativeStream(args, result)
-        }
-
-        registerInvocationHandler<NativeStreamStopArgs, Empty>("stream:stop", NativeStreamStopArgs::class.java) { args, result ->
-            stopNativeStream(args)
-            result.success(Empty())
-        }
-
-        registerInvocationHandler<FlutterStreamOnEventArgs, Empty>("flutterStream:onEvent", FlutterStreamOnEventArgs::class.java) { args, result ->
-            onFlutterStreamEvent(args.id, args.data)
-            result.success(Empty())
-        }
-
-        registerInvocationHandler<FlutterStreamOnErrorArgs, Empty>("flutterStream:onError", FlutterStreamOnErrorArgs::class.java) { args, result ->
-            onFlutterStreamError(args.id, args.code, args.message)
-            result.success(Empty())
-        }
-
-        registerInvocationHandler<FlutterStreamOnCompleteArgs, Empty>("flutterStream:onComplete", FlutterStreamOnCompleteArgs::class.java) { args, result ->
-            onFlutterStreamComplete(args.id)
-            result.success(Empty())
-        }
-
-        registerInvocationHandler<Empty, Id>("stream:createId", Empty::class.java) { args, result ->
-            result.success(Id(++flutterStreamIdSequence))
-        }
-
-        registerInvocationHandler<Empty, Empty>("onFlutterInitialized", Empty::class.java) { _, result ->
-            initSubject.onComplete()
-            result.success(Empty())
-        }
-
     }
 
     private fun createNativeStream(args: NativeStreamStartArgs, result: Result<Empty>) {

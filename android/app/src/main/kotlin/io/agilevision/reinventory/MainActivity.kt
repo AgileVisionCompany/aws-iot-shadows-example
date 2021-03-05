@@ -2,17 +2,13 @@ package io.agilevision.reinventory
 
 import com.amazonaws.amplify.Amplify
 import com.amazonaws.amplify.amplify_auth_cognito.AuthCognito
-import io.agilevision.reinventory.native.DEFAULT_CHANNEL
-import io.agilevision.reinventory.native.FlutterBridge
+import io.agilevision.reinventory.native.FlutterBridgePlugin
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.pathprovider.PathProviderPlugin
 import io.flutter.plugins.urllauncher.UrlLauncherPlugin
 
 class MainActivity: FlutterActivity() {
-
-    lateinit var flutterBridge: FlutterBridge
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         // super.configureFlutterEngine(flutterEngine)
@@ -31,11 +27,12 @@ class MainActivity: FlutterActivity() {
         flutterEngine.plugins.add(PathProviderPlugin())
         flutterEngine.plugins.add(UrlLauncherPlugin())
 
-        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEFAULT_CHANNEL)
-        flutterBridge = FlutterBridge(channel)
+        // custom plugin for bi-directional communication with Flutter
+        flutterEngine.plugins.add(FlutterBridgePlugin())
 
-        val ledsController = LedsShadowController()
-        ledsController.setup(applicationContext, flutterBridge)
+        // initializing LEDs controller
+        val flutterBridgePlugin = flutterEngine.plugins[FlutterBridgePlugin::class.java] as FlutterBridgePlugin
+        LedsShadowController().setup(applicationContext, flutterBridgePlugin.flutterBridge)
     }
 
 }
